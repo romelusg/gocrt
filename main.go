@@ -14,7 +14,7 @@ import (
 )
 
 // gocrt version
-var gocrtVersion = "dev"
+var gocrtVersion = "0.0.1-dev"
 
 // make given list unique
 func unique(list []string) ([]string) {
