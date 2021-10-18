@@ -4,10 +4,50 @@ import (
     "flag"
     "fmt"
     "os"
+    "log"
+    "bufio"
+    "net/url"
 )
 
 // gocrt version
 var gocrtVersion = "dev"
+
+// Extract domain from possible link
+func extractDomain(link string) (string) {
+    url, err := url.Parse(link)
+
+    if len(url.Hostname()) != 0 && err == nil {
+        link = url.Hostname()
+    }
+
+    return link
+}
+
+// Get domains from stdin/pipe/command line argument
+func getDomains() ([]string, error) {
+    var domain string
+    var domains []string
+    var err error
+
+    if flag.NArg() == 0 { // read from stdin/pipe
+
+        scanner := bufio.NewScanner(os.Stdin)
+        for scanner.Scan() {
+            domains = append(domains, extractDomain(scanner.Text()))
+        }
+
+        err = scanner.Err()
+
+    } else { // read from argument
+
+        domain = extractDomain(os.Args[len(os.Args) - 1])
+        domains = append(domains, domain)
+
+    }
+
+    // TODO: remove duplicates from "domains"
+    return domains, err
+}
 
 // init, get called automatic before main()
 func init() {
@@ -52,6 +92,11 @@ func main() {
         os.Exit(0)
     }
 
-    // TESTING
-    fmt.Printf("-o or --output argument: %s\n", output)
+    // Get domains to request
+    domains, err := getDomains()
+    if err != nil {
+        log.Fatal(err)
+        os.Exit(3)
+    }
+    fmt.Println(domains)
 }
