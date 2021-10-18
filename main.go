@@ -2,6 +2,7 @@ package main
 
 import (
     "flag"
+    "strings"
     "fmt"
     "os"
     "log"
@@ -12,6 +13,19 @@ import (
 // gocrt version
 var gocrtVersion = "dev"
 
+// make given list unique
+func unique(list []string) ([]string) {
+    allKeys := make(map[string]bool)
+    uniqueList := []string{}
+    for _, item := range list{
+        if _, value := allKeys[item]; !value {
+            allKeys[item] = true
+            uniqueList = append(uniqueList, item)
+        }
+    }
+    return uniqueList
+}
+
 // Extract domain from possible link
 func extractDomain(link string) (string) {
     url, err := url.Parse(link)
@@ -20,7 +34,8 @@ func extractDomain(link string) (string) {
         link = url.Hostname()
     }
 
-    return link
+    link = strings.TrimSpace(link)
+    return strings.ToLower(link)
 }
 
 // Get domains from stdin/pipe/command line argument
@@ -45,8 +60,7 @@ func getDomains() ([]string, error) {
 
     }
 
-    // TODO: remove duplicates from "domains"
-    return domains, err
+    return unique(domains), err
 }
 
 // init, get called automatic before main()
