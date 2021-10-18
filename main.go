@@ -7,7 +7,9 @@ import (
     "os"
     "log"
     "bufio"
+    "io/ioutil"
     "net/url"
+    "net/http"
 )
 
 // gocrt version
@@ -63,6 +65,24 @@ func getDomains() ([]string, error) {
     return unique(domains), err
 }
 
+// Get JSON-data from crt.sh
+func getCrtShData(domain string) (string) {
+    crtUrl := fmt.Sprintf("https://crt.sh?q=%s&output=json", domain)
+
+    response, err := http.Get(crtUrl)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    defer response.Body.Close()
+    data, err := ioutil.ReadAll(response.Body)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    return string(data)
+}
+
 // init, get called automatic before main()
 func init() {
     flag.Usage = func() {
@@ -112,5 +132,10 @@ func main() {
         log.Fatal(err)
         os.Exit(3)
     }
-    fmt.Println(domains)
+
+    // Get JSON-data from crt.sh
+    for _, domain := range domains {
+        jsonData := getCrtShData(domain)
+        fmt.Println(len(jsonData))
+    }
 }

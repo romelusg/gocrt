@@ -54,3 +54,22 @@ func TestGetDomains(t *testing.T) {
             want, len(have))
     }
 }
+
+// TEST getCrtShData()
+func TestGetCrtShData(t *testing.T) {
+    domains := []struct{
+        url string
+        want bool
+    }{
+        {"example.com", true},
+        {"doesnotexist1234heheheheexample.com", false},
+    }
+
+    for _, domain := range domains {
+        have := getCrtShData(domain.url)
+        if have == "[]" && domain.want {
+            t.Errorf("Want JSON-Data from domain '%s'; have '%s'",
+                domain.url, have)
+        }
+    }
+}
