@@ -7,6 +7,7 @@ import (
     "os"
     "log"
     "bufio"
+    "sync"
     "io/ioutil"
     "net/url"
     "net/http"
@@ -66,7 +67,7 @@ func getDomains() ([]string, error) {
 }
 
 // Get JSON-data from crt.sh
-func getCrtShData(domain string) (string) {
+func getCrtShJson(domain string) (string) {
     crtUrl := fmt.Sprintf("https://crt.sh?q=%s&output=json", domain)
 
     response, err := http.Get(crtUrl)
@@ -134,8 +135,16 @@ func main() {
     }
 
     // Get JSON-data from crt.sh
+    var worker sync.WaitGroup
     for _, domain := range domains {
-        jsonData := getCrtShData(domain)
-        fmt.Println(len(jsonData))
+        worker.Add(1)
+        go func(domain string) {
+            defer worker.Done()
+            fmt.Println("Get subdomains from", domain)
+            jsonData := getCrtShJson(domain)
+            fmt.Println(domain, len(jsonData))
+        }(domain)
     }
+    worker.Wait()
+    fmt.Println("Done")
 }
