@@ -18,6 +18,14 @@ import (
 // gocrt version
 var gocrtVersion = "0.0.1-dev"
 
+// Wrapper for printing messages
+// - used to print only subdomains to STDOUT 
+func printMessage(silent bool, message string, arguments ...interface{}) {
+    if ! silent {
+        fmt.Printf(message, arguments...)
+    }
+}
+
 // filter invalid domains/subdomains
 func filterInvalidDomains(domains []string) ([]string) {
     var filtered []string
@@ -155,6 +163,7 @@ func init() {
         h += "  -h, --help       Print usage informations\n"
         h += "  -o, --output     Output directory for all found subdomains of given domains\n"
         h += "  -c, --combine    Additionally combine output for all found subdomains of given domains in one file\n"
+        h += "  -s, --stdout     Print only subdomains to STDOUT so they can be piped to other tools, they also get saved into files\n"
         h += "      --version    Print version information\n"
         h += "\n"
 
@@ -184,11 +193,16 @@ func main() {
     flag.BoolVar(&combine, "combine", false, "")
     flag.BoolVar(&combine, "c", false, "")
 
+    // "stdout" command line argument
+    var stdout bool
+    flag.BoolVar(&stdout, "stdout", false, "")
+    flag.BoolVar(&stdout, "s", false, "")
+
     flag.Parse()
 
     // Print version
     if version {
-        fmt.Printf("gocrt version: %s\n", gocrtVersion)
+        printMessage(stdout, "gocrt version: %s\n", gocrtVersion)
         os.Exit(0)
     }
 
@@ -206,27 +220,33 @@ func main() {
         go func(domain string) {
             defer worker.Done()
 
-            fmt.Printf("Get subdomains from: %s\n", domain)
+            printMessage(stdout, "Get subdomains from: %s\n", domain)
             jsonData := getCrtShJson(domain)
             subdomains := extractSubdomainsFromJson(jsonData)
 
-            fmt.Printf("Save subdomains from: %s", domain)
+            printMessage(stdout, "Save subdomains from: %s", domain)
             saved := saveSubdomains(output, domain,
                 subdomains, os.O_CREATE|os.O_RDWR|os.O_TRUNC)
             if saved {
-                fmt.Printf(" -> saved\n")
+                printMessage(stdout, " -> saved\n")
             }
 
             if combine { // additionally combine all domains
                 saveSubdomains(output, "combined.txt", subdomains,
                     os.O_CREATE|os.O_RDWR|os.O_APPEND)
             }
+
+            if stdout { // Print to STDOUT
+                for _, subdomain := range subdomains {
+                    printMessage(!stdout, "%s\n", subdomain)
+                }
+            }
         }(domain)
     }
     worker.Wait()
 
     if combine {
-        fmt.Printf("Additionally saved subdomains combined in one file\n")
+        printMessage(stdout, "Additionally saved subdomains combined in one file\n")
     }
-    fmt.Printf("[\u2713] Done\n")
+    printMessage(stdout, "[\u2713] Done\n")
 }
