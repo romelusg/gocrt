@@ -3,6 +3,7 @@ package main
 import (
     "testing"
     "reflect"
+    "os"
 )
 
 // TEST unique()
@@ -98,7 +99,8 @@ func TestSaveSubdomains(t *testing.T) {
         "dev.example.com",
         "hello.example.com",
     }
-    have := saveSubdomains("testfiles-gocrt", "example.com", data)
+    fileFlags := os.O_CREATE|os.O_RDWR|os.O_TRUNC
+    have := saveSubdomains("testfiles-gocrt", "example.com", data, fileFlags)
 
     if ! have {
         t.Errorf("Could not write subdomains to file")

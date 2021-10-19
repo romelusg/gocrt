@@ -120,12 +120,13 @@ func extractSubdomainsFromJson(jsonData string) ([]string){
 }
 
 // Write subdomains into file
-func saveSubdomains(dir string, domain string, subdomains []string) (bool){
+func saveSubdomains(dir string, domain string,
+    subdomains []string, fileFlags int) (bool){
     outputDir := "./" + dir
     os.Mkdir(outputDir, 0755)
 
     filePath := outputDir + "/" + domain
-    file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
+    file, err := os.OpenFile(filePath, fileFlags, 0644)
 
     if err != nil {
         log.Fatalf("Could not create file to save subdomains: %s", err)
@@ -153,6 +154,7 @@ func init() {
         h += "Options:\n"
         h += "  -h, --help       Print usage informations\n"
         h += "  -o, --output     Output directory for all found subdomains of given domains\n"
+        h += "  -c, --combine    Combine output for all found subdomains of given domains in one file\n"
         h += "      --version    Print version information\n"
         h += "\n"
 
@@ -176,6 +178,11 @@ func main() {
     var output string
     flag.StringVar(&output, "output", "subdomains", "")
     flag.StringVar(&output, "o", "subdomains", "")
+
+    // "combine" command line argument
+    var combine bool
+    flag.BoolVar(&combine, "combine", false, "")
+    flag.BoolVar(&combine, "c", false, "")
 
     flag.Parse()
 
@@ -203,13 +210,23 @@ func main() {
             jsonData := getCrtShJson(domain)
             subdomains := extractSubdomainsFromJson(jsonData)
 
-            fmt.Printf("Save subdomains from: %s", domain)
-            saved := saveSubdomains(output, domain, subdomains)
-            if saved {
-                fmt.Printf(" -> saved\n")
+            if combine {
+                saveSubdomains(output, "domains.txt", subdomains,
+                    os.O_CREATE|os.O_RDWR|os.O_APPEND)
+            } else {
+                fmt.Printf("Save subdomains from: %s", domain)
+                saved := saveSubdomains(output, domain,
+                    subdomains, os.O_CREATE|os.O_RDWR|os.O_TRUNC)
+                if saved {
+                    fmt.Printf(" -> saved\n")
+                }
             }
         }(domain)
     }
     worker.Wait()
+
+    if combine {
+        fmt.Printf("Saved subdomains combined in one file\n")
+    }
     fmt.Printf("[\u2713] Done\n")
 }
