@@ -77,8 +77,12 @@ func TestGetDomains(t *testing.T) {
 
 // TEST extractSubodmainsFromJson()
 func TestExtractSubodmainsFromJson(t *testing.T) {
-    data := `[{"issuer_ca_id":185756,"issuer_name":"C=US, O=DigiCert Inc, CN=DigiCert TLS RSA SHA256 2020 CA1","common_name":"www.example.org","name_value":"dev.example.com","id":3704614715,"entry_timestamp":"2020-11-27T13:49:06.706","not_before":"2020-11-24T00:00:00","not_after":"2021-12-25T23:59:59","serial_number":"0fbe08b0854d05738ab0cce1c9afeec9"},{"issuer_ca_id":185756,"issuer_name":"C=US, O=DigiCert Inc, CN=DigiCert TLS RSA SHA256 2020 CA1","common_name":"www.example.org","name_value":"test.example.com","id":3704614715,"entry_timestamp":"2020-11-27T13:49:06.706","not_before":"2020-11-24T00:00:00","not_after":"2021-12-25T23:59:59","serial_number":"0fbe08b0854d05738ab0cce1c9afeec9"}]`
-    want := []string{"www.example.org", "dev.example.com", "test.example.com"}
+    data := `[{"issuer_ca_id":185756,"issuer_name":"C=US, O=DigiCert Inc, CN=DigiCert TLS RSA SHA256 2020 CA1","common_name":"dev.example.com\nexample.com\nproducts.example.com\nsupport.example.com\nwww.example.com","name_value":"mail.example.com\ndev.example.com","id":3704614715,"entry_timestamp":"2020-11-27T13:49:06.706","not_before":"2020-11-24T00:00:00","not_after":"2021-12-25T23:59:59","serial_number":"0fbe08b0854d05738ab0cce1c9afeec9"},{"issuer_ca_id":185756,"issuer_name":"C=US, O=DigiCert Inc, CN=DigiCert TLS RSA SHA256 2020 CA1","common_name":"www.example.org","name_value":"test.example.com","id":3704614715,"entry_timestamp":"2020-11-27T13:49:06.706","not_before":"2020-11-24T00:00:00","not_after":"2021-12-25T23:59:59","serial_number":"0fbe08b0854d05738ab0cce1c9afeec9"}]`
+    want := []string{
+        "dev.example.com", "example.com", "products.example.com",
+        "support.example.com", "www.example.com", "mail.example.com",
+        "www.example.org", "test.example.com",
+    }
     have := extractSubdomainsFromJson(data)
 
     if ! reflect.DeepEqual(have, want) {

@@ -93,12 +93,12 @@ func extractSubdomainsFromJson(jsonData string) ([]string){
     json.Unmarshal([]byte(jsonData), &entries)
     for _, entry := range entries {
         commonName := entry["common_name"].(string)
-        subdomains = append(subdomains,
-            strings.Replace(commonName, "\n", "", -1))
+        commonNameList := strings.Split(commonName, "\n")
+        subdomains = append(subdomains, commonNameList...)
 
         nameValue := entry["name_value"].(string)
-        subdomains = append(subdomains,
-            strings.Replace(nameValue, "\n", "", -1))
+        nameValueList := strings.Split(nameValue, "\n")
+        subdomains = append(subdomains, nameValueList...)
     }
 
     return unique(subdomains)
@@ -110,7 +110,7 @@ func saveSubdomains(dir string, domain string, subdomains []string) (bool){
     os.Mkdir(outputDir, 0755)
 
     filePath := outputDir + "/" + domain
-    file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
+    file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
 
     if err != nil {
         log.Fatalf("Could not create file to save subdomains: %s", err)
