@@ -2,6 +2,7 @@ package main
 
 import (
     "testing"
+    "reflect"
 )
 
 // TEST unique()
@@ -24,7 +25,7 @@ func TestUnique(t *testing.T) {
 func TestExtractDomain(t *testing.T) {
     tests := []struct {
         url string
-        want string 
+        want string
     }{
         {"http://example.com", "example.com"},
         {"http://example.com", "example.com"},
@@ -71,5 +72,17 @@ func TestGetCrtShJson(t *testing.T) {
             t.Errorf("Want JSON-Data from domain '%s'; have '%s'",
                 domain.url, have)
         }
+    }
+}
+
+// TEST extractSubodmainsFromJson()
+func TestExtractSubodmainsFromJson(t *testing.T) {
+    data := `[{"issuer_ca_id":185756,"issuer_name":"C=US, O=DigiCert Inc, CN=DigiCert TLS RSA SHA256 2020 CA1","common_name":"www.example.org","name_value":"dev.example.com","id":3704614715,"entry_timestamp":"2020-11-27T13:49:06.706","not_before":"2020-11-24T00:00:00","not_after":"2021-12-25T23:59:59","serial_number":"0fbe08b0854d05738ab0cce1c9afeec9"},{"issuer_ca_id":185756,"issuer_name":"C=US, O=DigiCert Inc, CN=DigiCert TLS RSA SHA256 2020 CA1","common_name":"www.example.org","name_value":"test.example.com","id":3704614715,"entry_timestamp":"2020-11-27T13:49:06.706","not_before":"2020-11-24T00:00:00","not_after":"2021-12-25T23:59:59","serial_number":"0fbe08b0854d05738ab0cce1c9afeec9"}]`
+    want := []string{"www.example.org", "dev.example.com", "test.example.com"}
+    have := extractSubdomainsFromJson(data)
+
+    if ! reflect.DeepEqual(have, want) {
+        t.Errorf("Want subdomain list of '%s'; have '%s'",
+            want, have)
     }
 }

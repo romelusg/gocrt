@@ -11,6 +11,7 @@ import (
     "io/ioutil"
     "net/url"
     "net/http"
+    "encoding/json"
 )
 
 // gocrt version
@@ -84,6 +85,25 @@ func getCrtShJson(domain string) (string) {
     return string(data)
 }
 
+// Extract subdomains from JSON-data
+func extractSubdomainsFromJson(jsonData string) ([]string){
+    var subdomains []string
+    var entries []map[string]interface{}
+
+    json.Unmarshal([]byte(jsonData), &entries)
+    for _, entry := range entries {
+        commonName := entry["common_name"].(string)
+        subdomains = append(subdomains,
+            strings.Replace(commonName, "\n", "", -1))
+
+        nameValue := entry["name_value"].(string)
+        subdomains = append(subdomains,
+            strings.Replace(nameValue, "\n", "", -1))
+    }
+
+    return unique(subdomains)
+}
+
 // init, get called automatic before main()
 func init() {
     flag.Usage = func() {
@@ -142,7 +162,10 @@ func main() {
             defer worker.Done()
             fmt.Println("Get subdomains from", domain)
             jsonData := getCrtShJson(domain)
-            fmt.Println(domain, len(jsonData))
+            subdomains := extractSubdomainsFromJson(jsonData)
+            fmt.Printf("Subdomains found for: %s\n", domain)
+            fmt.Println(subdomains)
+            fmt.Println()
         }(domain)
     }
     worker.Wait()
