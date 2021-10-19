@@ -1,2 +1,4 @@
+/subdomains/*
+/testfiles-gocrt/*
 domains.txt
 gocrt

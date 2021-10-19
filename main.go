@@ -104,6 +104,29 @@ func extractSubdomainsFromJson(jsonData string) ([]string){
     return unique(subdomains)
 }
 
+// Write subdomains into file
+func saveSubdomains(dir string, domain string, subdomains []string) (bool){
+    outputDir := "./" + dir
+    os.Mkdir(outputDir, 0755)
+
+    filePath := outputDir + "/" + domain
+    file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
+
+    if err != nil {
+        log.Fatalf("Could not create file to save subdomains: %s", err)
+        return false
+    }
+
+    writer := bufio.NewWriter(file)
+    for _, subdomain := range subdomains {
+        writer.WriteString(subdomain + "\n")
+    }
+    writer.Flush()
+    file.Close()
+
+    return true
+}
+
 // init, get called automatic before main()
 func init() {
     flag.Usage = func() {
@@ -136,8 +159,8 @@ func main() {
 
     // "output" command line argument
     var output string
-    flag.StringVar(&output, "output", "gocrt", "")
-    flag.StringVar(&output, "o", "gocrt", "")
+    flag.StringVar(&output, "output", "subdomains", "")
+    flag.StringVar(&output, "o", "subdomains", "")
 
     flag.Parse()
 
@@ -160,14 +183,18 @@ func main() {
         worker.Add(1)
         go func(domain string) {
             defer worker.Done()
-            fmt.Println("Get subdomains from", domain)
+
+            fmt.Printf("Get subdomains from: %s\n", domain)
             jsonData := getCrtShJson(domain)
             subdomains := extractSubdomainsFromJson(jsonData)
-            fmt.Printf("Subdomains found for: %s\n", domain)
-            fmt.Println(subdomains)
-            fmt.Println()
+
+            fmt.Printf("Save subdomains from: %s", domain)
+            saved := saveSubdomains(output, domain, subdomains)
+            if saved {
+                fmt.Printf(" -> saved\n")
+            }
         }(domain)
     }
     worker.Wait()
-    fmt.Println("Done")
+    fmt.Printf("[\u2713] Done\n")
 }

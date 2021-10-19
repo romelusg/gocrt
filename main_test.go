@@ -57,7 +57,7 @@ func TestGetDomains(t *testing.T) {
 }
 
 // TEST getCrtShJson()
-func TestGetCrtShJson(t *testing.T) {
+/*func TestGetCrtShJson(t *testing.T) {
     domains := []struct{
         url string
         want bool
@@ -73,7 +73,7 @@ func TestGetCrtShJson(t *testing.T) {
                 domain.url, have)
         }
     }
-}
+}*/
 
 // TEST extractSubodmainsFromJson()
 func TestExtractSubodmainsFromJson(t *testing.T) {
@@ -84,5 +84,19 @@ func TestExtractSubodmainsFromJson(t *testing.T) {
     if ! reflect.DeepEqual(have, want) {
         t.Errorf("Want subdomain list of '%s'; have '%s'",
             want, have)
+    }
+}
+
+// TEST saveSubdomains()
+func TestSaveSubdomains(t *testing.T) {
+    data := []string {
+        "test.example.com",
+        "dev.example.com",
+        "hello.example.com",
+    }
+    have := saveSubdomains("testfiles-gocrt", "example.com", data)
+
+    if ! have {
+        t.Errorf("Could not write subdomains to file")
     }
 }
