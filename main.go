@@ -12,10 +12,24 @@ import (
     "net/url"
     "net/http"
     "encoding/json"
+    "regexp"
 )
 
 // gocrt version
 var gocrtVersion = "0.0.1-dev"
+
+// filter invalid domains/subdomains
+func filterInvalidDomains(domains []string) ([]string) {
+    var filtered []string
+    regex, _ := regexp.Compile(`^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$`)
+    for _, domain := range domains {
+        if regex.Match([]byte(domain)) {
+            filtered = append(filtered, domain)
+        }
+    }
+
+    return filtered
+}
 
 // make given list unique
 func unique(list []string) ([]string) {
@@ -101,6 +115,7 @@ func extractSubdomainsFromJson(jsonData string) ([]string){
         subdomains = append(subdomains, nameValueList...)
     }
 
+    subdomains = filterInvalidDomains(subdomains)
     return unique(subdomains)
 }
 

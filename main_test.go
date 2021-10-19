@@ -104,3 +104,24 @@ func TestSaveSubdomains(t *testing.T) {
         t.Errorf("Could not write subdomains to file")
     }
 }
+
+// TEST filterInvalidDomains()
+func TestFilterInvalidDomains(t *testing.T) {
+    data := []string {
+        "test.example.com",
+        "dev.example.com",
+        "fail/test.org",
+        "invalid@example.com",
+        "hello.example.com",
+    }
+    want := []string {
+        "test.example.com",
+        "dev.example.com",
+        "hello.example.com",
+    }
+    have := filterInvalidDomains(data)
+
+    if ! reflect.DeepEqual(have, want) {
+        t.Errorf("Invalid domain in list %s", have)
+    }
+}
