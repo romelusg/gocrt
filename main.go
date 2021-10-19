@@ -154,7 +154,7 @@ func init() {
         h += "Options:\n"
         h += "  -h, --help       Print usage informations\n"
         h += "  -o, --output     Output directory for all found subdomains of given domains\n"
-        h += "  -c, --combine    Combine output for all found subdomains of given domains in one file\n"
+        h += "  -c, --combine    Additionally combine output for all found subdomains of given domains in one file\n"
         h += "      --version    Print version information\n"
         h += "\n"
 
@@ -210,23 +210,23 @@ func main() {
             jsonData := getCrtShJson(domain)
             subdomains := extractSubdomainsFromJson(jsonData)
 
-            if combine {
-                saveSubdomains(output, "domains.txt", subdomains,
+            fmt.Printf("Save subdomains from: %s", domain)
+            saved := saveSubdomains(output, domain,
+                subdomains, os.O_CREATE|os.O_RDWR|os.O_TRUNC)
+            if saved {
+                fmt.Printf(" -> saved\n")
+            }
+
+            if combine { // additionally combine all domains
+                saveSubdomains(output, "combined.txt", subdomains,
                     os.O_CREATE|os.O_RDWR|os.O_APPEND)
-            } else {
-                fmt.Printf("Save subdomains from: %s", domain)
-                saved := saveSubdomains(output, domain,
-                    subdomains, os.O_CREATE|os.O_RDWR|os.O_TRUNC)
-                if saved {
-                    fmt.Printf(" -> saved\n")
-                }
             }
         }(domain)
     }
     worker.Wait()
 
     if combine {
-        fmt.Printf("Saved subdomains combined in one file\n")
+        fmt.Printf("Additionally saved subdomains combined in one file\n")
     }
     fmt.Printf("[\u2713] Done\n")
 }
