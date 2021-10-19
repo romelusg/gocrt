@@ -154,7 +154,7 @@ func saveSubdomains(dir string, domain string,
 // init, get called automatic before main()
 func init() {
     flag.Usage = func() {
-        h := "A crt.sh command line client written in golang.\n\n"
+        h := "gocrt is a command line client for crt.sh written in golang.\n\n"
 
         h += "Usage:\n"
         h += "  gocrt [OPTIONS] [FILE|URL|-]\n\n"

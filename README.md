@@ -1,5 +1,5 @@
 # gocrt
-`gocrt` is a command line client for [crt.sh](https://crt.sh/?target=_blank) written in golang.
+`gocrt` is a command line client for [crt.sh](https://crt.sh/) written in golang.
 ```text
 $ gocrt -o github-demo < domains.txt
 Get subdomains from: test.de
