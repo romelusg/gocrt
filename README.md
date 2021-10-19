@@ -10,3 +10,8 @@ $ gocrt example.com
 
 $ gocrt < domains.txt 
 ```
+
+```bash
+# To update version while "go build"
+go build -ldflags "-X main.gocrtVersion=<VERSION>"
+```
