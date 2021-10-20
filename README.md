@@ -16,6 +16,13 @@ drwxr-xr-x 5 tom tom 4096 16. Okt 14:29 ..
 ```
 
 ## Installation
+`gocrt` has no runtime dependencies. You can just [download a binary](https://github.com/tomschwarz/gocrt/releases) for Linux, Mac, Windows or FreeBSD and run it. 
+Put the binary in your `$PATH` (e.g. in `/usr/local/bin`) to make it easy to use:
+```bash
+$ tar xzf gocrt-linux-amd64-0.0.1.tgz
+$ sudo mv gocrt /usr/local/bin/
+```
+
 If you've got Go installed and configured you can install `gocrt` with:
 ```bash
 $ go get -u github.com/tomschwarz/gocrt
@@ -70,10 +77,4 @@ Examples:
   gocrt -o domains-crt example.com 
   gocrt < domains.txt
   gocrt example.com
-```
-
-## TODO - Release script
-```bash
-# To update version while "go build"
-go build -ldflags "-X main.gocrtVersion=<VERSION>"
 ```
