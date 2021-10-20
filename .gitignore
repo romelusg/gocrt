@@ -2,3 +2,7 @@
 /testfiles-gocrt/*
 domains.txt
 gocrt
+*.tgz
+*.zip
+*.swp
+*.exe
