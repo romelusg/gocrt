@@ -45,6 +45,8 @@ Pipe found subdomains to other tools:
 ```bash
 $ gocrt -s < domains.txt | httprobe
 # OR
+$ gocrt -s < domains.txt | tee combined.txt | httprobe
+# OR
 $ cat domains.txt | gocrt -s | httprobe
 # OR
 $ gocrt --stdout example.com | httprobe
@@ -66,15 +68,17 @@ Usage:
   gocrt [OPTIONS] [FILE|URL|-]
 
 Options:
-  -h, --help       Print usage informations
-  -o, --output     Output directory for all found subdomains of given domains
+  -h, --help       Print help/usage informations
+  -o, --output     Custom output directory for all found subdomains of given domains, DEFAULT: 'subdomains'
   -c, --combine    Additionally combine output for all found subdomains of given domains in one file
-  -s, --stdout     Print only subdomains to STDOUT so they can be piped to other tools, they also get saved into files
+  -s, --stdout     Print only subdomains to STDOUT so they can be piped directly to other tools, they will not be saved into files
       --version    Print version information
 
 Examples:
   cat domains.txt | gocrt -o domains-crt
   gocrt -o domains-crt example.com 
   gocrt < domains.txt
+  gocrt -s < domains.txt | tee combined.txt | httprobe
   gocrt example.com
+
 ```
