@@ -31,7 +31,8 @@ func TestExtractDomain(t *testing.T) {
         {"http://example.com", "example.com"},
         {"http://example.com", "example.com"},
         {"https://example.org:1234", "example.org"},
-        {"mail@example.org", "mail@example.org"},
+        {"mail@example.org", "mail%40example.org"},
+        {"example-23894723\"!§&%§=()=$.org", "example-23894723%22%21%C2%A7%26%25%C2%A7%3D%28%29%3D%24.org"},
         {"https://example.org:1234/something/here", "example.org"},
         {"https://example.org/test/there", "example.org"},
     }

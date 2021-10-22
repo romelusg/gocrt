@@ -54,14 +54,15 @@ func unique(list []string) ([]string) {
 
 // Extract domain from possible link
 func extractDomain(link string) (string) {
-    url, err := url.Parse(link)
+    parsedUrl, err := url.Parse(link)
 
-    if len(url.Hostname()) != 0 && err == nil {
-        link = url.Hostname()
+    if err == nil && len(parsedUrl.Hostname()) != 0 {
+        link = parsedUrl.Hostname()
     }
 
     link = strings.TrimSpace(link)
-    return strings.ToLower(link)
+    return url.QueryEscape(
+        strings.ToLower(link))
 }
 
 // Get domains from stdin/pipe/command line argument
