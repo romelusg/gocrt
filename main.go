@@ -160,10 +160,10 @@ func init() {
         h += "  gocrt [OPTIONS] [FILE|URL|-]\n\n"
 
         h += "Options:\n"
-        h += "  -h, --help       Print usage informations\n"
-        h += "  -o, --output     Output directory for all found subdomains of given domains\n"
+        h += "  -h, --help       Print help/usage informations\n"
+        h += "  -o, --output     Custom output directory for all found subdomains of given domains, DEFAULT: 'subdomains'\n"
         h += "  -c, --combine    Additionally combine output for all found subdomains of given domains in one file\n"
-        h += "  -s, --stdout     Print only subdomains to STDOUT so they can be piped to other tools, they also get saved into files\n"
+        h += "  -s, --stdout     Print only subdomains to STDOUT so they can be piped directly to other tools, they will not be saved into files\n"
         h += "      --version    Print version information\n"
         h += "\n"
 
@@ -171,6 +171,7 @@ func init() {
         h += "  cat domains.txt | gocrt -o domains-crt\n"
         h += "  gocrt -o domains-crt example.com \n"
         h += "  gocrt < domains.txt\n"
+        h += "  gocrt -s < domains.txt | tee combined.txt | httprobe\n"
         h += "  gocrt example.com\n"
 
         fmt.Fprintf(os.Stderr, h)
@@ -224,21 +225,21 @@ func main() {
             jsonData := getCrtShJson(domain)
             subdomains := extractSubdomainsFromJson(jsonData)
 
-            printMessage(stdout, "Save subdomains from: %s", domain)
-            saved := saveSubdomains(output, domain,
-                subdomains, os.O_CREATE|os.O_RDWR|os.O_TRUNC)
-            if saved {
-                printMessage(stdout, " -> saved\n")
-            }
-
-            if combine { // additionally combine all domains
-                saveSubdomains(output, "combined.txt", subdomains,
-                    os.O_CREATE|os.O_RDWR|os.O_APPEND)
-            }
-
-            if stdout { // Print to STDOUT
+            if stdout { // Print subdomains to STDOUT
                 for _, subdomain := range subdomains {
                     printMessage(!stdout, "%s\n", subdomain)
+                }
+            } else { // Print messages to STDOUT and save subdomains to files
+                printMessage(stdout, "Save subdomains from: %s", domain)
+                saved := saveSubdomains(output, domain,
+                    subdomains, os.O_CREATE|os.O_RDWR|os.O_TRUNC)
+                if saved {
+                    printMessage(stdout, " -> saved\n")
+                }
+
+                if combine { // additionally combine all domains
+                    saveSubdomains(output, "combined.txt", subdomains,
+                        os.O_CREATE|os.O_RDWR|os.O_APPEND)
                 }
             }
         }(domain)

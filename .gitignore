@@ -1,5 +1,6 @@
 /subdomains/*
 /testfiles-gocrt/*
+combined.txt
 domains.txt
 gocrt
 *.tgz
